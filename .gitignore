@@ -1,0 +1,49 @@
+# 大众点评食记Skill - 仓库忽略规则
+
+# 依赖
+node_modules/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# 编辑器和 IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# 临时文件
+*.tmp
+*.bak
+*.log
+
+# 敏感信息
+.env
+.env.*
+credentials.*
+*.key
+*.pem
+
+# 打包产物
+*.zip
+*.tar.gz
+*.rar
+
+# 操作系统
+Desktop.ini
+$RECYCLE.BIN/
+
+# AI 相关
+*.aigc.json

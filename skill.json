@@ -1,0 +1,34 @@
+{
+  "name": "dianping-shiji",
+  "version": "3.0.0",
+  "description": "大众点评食记写作Skill——只需一个店名，生成真实不AI的探店笔记。七引擎架构：开头钩子+五感颗粒度+饭搭子人设+环境空间叙事+反差记忆点+标题工厂+类型适配。",
+  "author": "Marvis",
+  "license": "CC BY-NC-SA 4.0",
+  "homepage": "https://github.com/yourusername/dianping-shiji",
+  "repository": "https://github.com/yourusername/dianping-shiji",
+  "keywords": ["大众点评", "美食写作", "探店", "本地生活", "去AI化", "SEO写作", "餐饮评价"],
+  "categories": ["content-creation", "local-life", "food"],
+  "language": "zh-CN",
+  "skill_file": "SKILL.md",
+  "price": {
+    "type": "freemium",
+    "free_features": ["七大引擎基础写作", "单个店铺生成", "500-700字食记"],
+    "paid_features": ["优先队列", "批量生成（月50篇）", "数据导出"],
+    "subscription_price": 19.9,
+    "currency": "CNY",
+    "period": "monthly"
+  },
+  "min_agent_version": "1.0.0",
+  "compatibility": ["clawbot", "dify", "fastgpt", "coze"],
+  "dependencies": {
+    "required": ["web_search"],
+    "optional": []
+  },
+  "examples": [
+    {
+      "input": "帮我写斗叁千臻选土菜研究院的食记",
+      "type": "高端餐厅/商务宴请",
+      "output_file": "examples/dou-sanqian.md"
+    }
+  ]
+}
