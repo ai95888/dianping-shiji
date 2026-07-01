@@ -20,7 +20,6 @@
   --blue: #60a5fa;
   --purple: #a78bfa;
   --pink: #f472b6;
-  --teal: #2dd4bf;
   --red: #f87171;
   --radius: 10px;
   --radius-lg: 16px;
@@ -74,6 +73,22 @@ nav .container { display: flex; align-items: center; justify-content: space-betw
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23636770' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
 }
+
+/* COMMENT TEXTAREA */
+.comment-group { margin-top: 18px; }
+.comment-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.comment-group label .optional { color: var(--text-muted); font-weight: 400; text-transform: none; letter-spacing: 0; }
+.comment-group textarea {
+  width: 100%; padding: 12px 16px; border-radius: 8px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; font-family: inherit;
+  resize: vertical; min-height: 90px; max-height: 220px;
+  line-height: 1.6; transition: border-color .2s;
+}
+.comment-group textarea:focus { outline: none; border-color: var(--accent); }
+.comment-group textarea::placeholder { color: var(--text-muted); font-size: 13px; }
+.comment-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; }
+
 .btn-generate {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 12px 32px; border-radius: 8px; background: var(--accent);
@@ -129,9 +144,77 @@ nav .container { display: flex; align-items: center; justify-content: space-betw
 /* ESSAY */
 .essay-content { padding: 36px 32px; }
 .essay-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 28px; line-height: 1.4; }
-.essay-body { color: var(--text-secondary); font-size: 15px; line-height: 2; }
+.essay-body { font-size: 15px; line-height: 2; position: relative; }
 .essay-body p { margin-bottom: 18px; }
 .essay-body p:last-child { margin-bottom: 0; }
+
+/* COMMENT SOURCE BADGE */
+.comment-source-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--blue); margin-bottom: 12px;
+  padding: 4px 12px; border-radius: 100px;
+  background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.18);
+}
+.comment-source-badge svg { flex-shrink: 0; }
+
+/* PAYWALL */
+.paywall-wrapper { position: relative; margin-top: 20px; }
+.paywall-blur { filter: blur(12px); user-select: none; pointer-events: none; opacity: 0.45; transition: all 0.6s ease; }
+.paywall-blur.unlocked { filter: none; opacity: 1; user-select: auto; pointer-events: auto; }
+.paywall-overlay {
+  position: absolute; inset: 0; z-index: 10;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, rgba(22,25,29,0.3) 0%, rgba(13,15,18,0.85) 100%);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.paywall-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.paywall-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 32px 36px;
+  text-align: center; max-width: 320px; width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+.paywall-icon { font-size: 36px; margin-bottom: 12px; color: var(--accent); opacity: 0.9; }
+.paywall-card h4 { font-size: 17px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+.paywall-card .paywall-price { font-size: 28px; font-weight: 800; color: var(--accent); margin-bottom: 8px; letter-spacing: -0.5px; }
+.paywall-card .paywall-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5; }
+.qr-placeholder {
+  display: flex; align-items: center; justify-content: center;
+  width: 140px; height: 140px; margin: 0 auto 18px;
+  border: 2px dashed rgba(245,166,35,0.35); border-radius: 12px;
+  background: rgba(245,166,35,0.04);
+  color: var(--text-muted); font-size: 13px; font-weight: 600;
+  position: relative;
+}
+.qr-placeholder::before {
+  content: ''; position: absolute; top: 8px; left: 8px; right: 8px; bottom: 8px;
+  border: 1px solid rgba(245,166,35,0.12); border-radius: 6px;
+}
+.qr-placeholder-text { z-index: 1; text-align: center; line-height: 1.4; }
+.qr-placeholder-text span { display: block; font-size: 11px; color: var(--text-muted); font-weight: 400; margin-top: 2px; }
+.btn-unlock {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 10px 28px; border-radius: 8px;
+  background: var(--accent); color: #0d0f12;
+  font-size: 14px; font-weight: 700; border: none;
+  cursor: pointer; transition: all .25s; letter-spacing: 0.2px;
+}
+.btn-unlock:hover { background: #f59e0b; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,166,35,0.3); }
+.btn-unlock:active { transform: scale(0.97); }
+
+/* PREVIEW COUNT */
+.preview-count {
+  font-size: 12px; color: var(--text-muted); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 6px;
+}
+.preview-count .count-bar {
+  flex: 1; height: 2px; background: var(--border); border-radius: 2px;
+  overflow: hidden; max-width: 120px;
+}
+.preview-count .count-bar-fill {
+  height: 100%; background: var(--accent); border-radius: 2px;
+}
 
 /* ACTIONS */
 .actions-row { padding: 0 32px 28px; display: flex; gap: 12px; flex-wrap: wrap; }
@@ -143,6 +226,8 @@ nav .container { display: flex; align-items: center; justify-content: space-betw
 }
 .btn-copy { background: transparent; color: var(--text); border: 1px solid var(--border); }
 .btn-copy:hover { border-color: var(--text-muted); background: var(--bg-card-hover); }
+.btn-copy:disabled { opacity: 0.4; cursor: not-allowed; border-color: var(--border); color: var(--text-muted); }
+.btn-copy:disabled:hover { background: transparent; border-color: var(--border); }
 .btn-md { background: transparent; color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
 .btn-md:hover { border-color: var(--green); background: rgba(74,222,128,0.06); }
 .btn-action:active { transform: scale(0.97); }
@@ -181,6 +266,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 0; }
   .essay-content { padding: 24px 20px; }
   .actions-row { padding: 0 20px 20px; }
   .check-section { padding: 12px 20px 20px; }
+  .paywall-card { padding: 24px 20px; }
 }
 </style>
 </head>
@@ -195,9 +281,9 @@ footer { border-top: 1px solid var(--border); padding: 32px 0; }
 
 <section class="hero">
   <div class="container">
-    <div class="hero-badge">v3.0 · 七大引擎 · 规则驱动</div>
+    <div class="hero-badge">v3.1 · 评论驱动 + 付费截断</div>
     <h1>食记写作工具</h1>
-    <p>输入店名，选择类型，AI 按七大引擎规则为你生成真实不 AI 的大众点评食记。</p>
+    <p>输入店名，选择类型，可粘贴真实评论原文让 AI 按七大引擎规则生成食记。</p>
   </div>
 </section>
 
@@ -225,6 +311,15 @@ footer { border-top: 1px solid var(--border); padding: 32px 0; }
           生成食记
         </button>
       </div>
+      <div class="comment-group">
+        <label>真实评论原文 <span class="optional">（选填 · 粘贴大众点评评论，每行一条）</span></label>
+        <textarea id="userComments" placeholder="例：
+红烧牛肋骨酱香浓郁，168一份值回票价，就是排队太久
+环境是那种老洋房改造的，灯光很舒服，服务生倒茶很及时
+梅干菜炒饭才38，锅气很重，比招牌菜还好吃
+甜品偏甜，不太适合不爱吃甜的人"></textarea>
+        <div class="comment-hint">粘贴真实评论后，AI 将基于评论内容生成食记；留空则自动使用模板生成。</div>
+      </div>
     </div>
   </div>
 </section>
@@ -247,8 +342,8 @@ footer { border-top: 1px solid var(--border); padding: 32px 0; }
       </div>
       <div class="titles-list" id="titlesList"></div>
       <div class="essay-content" id="essayContent"></div>
-      <div class="actions-row">
-        <button class="btn-action btn-copy" onclick="copyEssay()">
+      <div class="actions-row" id="actionsRow">
+        <button class="btn-action btn-copy" id="btnCopy" onclick="copyEssay()">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="10" height="10" rx="2"/><path d="M1 11V3a2 2 0 012-2h8"/></svg>
           一键复制
         </button>
@@ -265,7 +360,7 @@ footer { border-top: 1px solid var(--border); padding: 32px 0; }
 <footer>
   <div class="container">
     <div class="footer-inner">
-      <span>dianping-shiji v3.0 · CC BY-NC-SA 4.0</span>
+      <span>dianping-shiji v3.1 · CC BY-NC-SA 4.0</span>
       <a href="index.html">← 返回产品展示页</a>
     </div>
   </div>
@@ -276,7 +371,6 @@ footer { border-top: 1px solid var(--border); padding: 32px 0; }
 <script>
 // ===================== 规则引擎数据 =====================
 
-// 类型适配参数表（引擎7）
 const TYPE_CONFIG = {
   fine_dining: {
     label: '高端餐厅 / 商务宴请',
@@ -320,7 +414,6 @@ const TYPE_CONFIG = {
   }
 };
 
-// 钩子模板（引擎1）
 const HOOKS = {
   scenario: [
     '加班到快九点从{station}地铁站出来，肚子叫得整栋楼都听见了。一抬头看见{landmark}的灯还亮着，{shop}的招牌像在跟我招手。',
@@ -340,7 +433,6 @@ const HOOKS = {
   ]
 };
 
-// 标题模板（引擎6）
 const TITLE_TEMPLATES = {
   value: '{road}这家{cuisine}馆，人均{price}吃出了{surprise}的排面',
   scenario: '加班到不知道吃什么？{shop}的{signature_dish}让我{emotion}',
@@ -350,7 +442,6 @@ const TITLE_TEMPLATES = {
   social: '朋友问我{shop}值不值得{action}，我说你先看这篇'
 };
 
-// 环境叙事框架
 const ENV_TEMPLATES = {
   fine_dining: {
     door: ['门口的{door_feature}先给你一个下马威，走进去才看到{shop}的招牌。','{shop}开在{landmark}的{floor}，门面不大但很有质感，深色木门配暖黄灯光。'],
@@ -379,7 +470,6 @@ const ENV_TEMPLATES = {
   }
 };
 
-// 菜品模板库（按类型）
 const DISH_TEMPLATES = {
   fine_dining: [
     { name: '招牌鱼头豆腐汤', visual: '端上来的时候汤还在冒泡，乳白色的，看着就踏实', smell: '凑近先闻到豆豉的发酵味，然后才是鱼的鲜甜', taste: '第一口是鱼鲜，嚼到第三下豆腐的豆香才出来，紧接着是泡椒的微辣回口', touch: '筷子一拨鱼肉就散开了，入口是烫的，得吹两下', audio: '端上桌的时候砂锅还在咕嘟咕嘟响', price: '128', compare: '比我在杭州吃的鱼头汤多了层泡椒的筋骨，没那么寡淡' },
@@ -409,14 +499,6 @@ const DISH_TEMPLATES = {
   ]
 };
 
-// 禁用词清单
-const BANNED_WORDS = [
-  '天花板','封神','绝绝子','此生必吃','惊艳','灵魂','治愈','宝藏','入口即化','YYDS','yyds','绝了','哭了',
-  '总体而言','值得一提的是','不得不说','众所周知','在…中','不仅…而且','既…又','通过…实现','总而言之','综上所述',
-  '饕客','珍馐','唇齿留香','回味无穷','食指大动','饕餮盛宴'
-];
-
-// 区域数据
 const AREAS = {
   city: '苏州',
   districts: ['虎丘区','工业园区','姑苏区','吴中区','相城区'],
@@ -426,7 +508,7 @@ const AREAS = {
   cuisines: ['土菜','本帮菜','川菜','粤菜','日料','湘菜','淮扬菜']
 };
 
-// ===================== 生成引擎 =====================
+// ===================== 工具函数 =====================
 
 function rng(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
@@ -440,91 +522,131 @@ function pick(arr, n) {
   }
   return result;
 }
-
 function fillTemplate(tmpl, vars) {
   return tmpl.replace(/\{(\w+)\}/g, (_, key) => vars[key] !== undefined ? vars[key] : `{${key}}`);
 }
 
-// 选菜
-function pickDishes(type, count) {
-  const pool = DISH_TEMPLATES[type] || DISH_TEMPLATES.street_shop;
-  return pick(pool, count);
-}
+// ===================== 评论解析引擎 =====================
 
-// 生成钩子
-function generateHook(type, vars) {
-  const hookTypes = TYPE_CONFIG[type].hookPref;
-  const hookType = rng(hookTypes);
-  const hookPool = HOOKS[hookType];
-  return fillTemplate(rng(hookPool), vars);
-}
+function parseComments(rawText) {
+  if (!rawText || !rawText.trim()) return null;
 
-// 生成标题
-function generateTitles(type, vars) {
-  const pref = TYPE_CONFIG[type].titlePref;
-  const allTypes = [...new Set([...pref, ...Object.keys(TITLE_TEMPLATES)])].slice(0, 6);
-  const chosen = pick(allTypes, 3);
-  const starsOrder = ['⭐⭐⭐', '⭐⭐', '⭐⭐'];
-  const results = [];
-  for (let i = 0; i < 3; i++) {
-    const tType = chosen[i];
-    const tmpl = TITLE_TEMPLATES[tType];
-    let text = fillTemplate(tmpl, vars);
-    if (text.length > 28) text = text.substring(0, 25) + '…';
-    const typeNames = { value:'价值锚点型', scenario:'场景痛点型', counterintuitive:'反常识型', sensory:'感官暴击型', regional:'地域反差型', social:'社交币型' };
-    results.push({ text, stars: starsOrder[i], type: tType, typeLabel: typeNames[tType] || tType });
+  const lines = rawText.split(/[\n\r]+/).map(l => l.trim()).filter(l => l.length >= 4);
+  if (lines.length === 0) return null;
+
+  const result = {
+    comments: lines,
+    dishes: [],
+    envClues: [],
+    flawClues: [],
+    priceLevel: null,
+    atmosphere: null,
+    hasQueue: false,
+    rawText: rawText.trim()
+  };
+
+  // 价格模式
+  const pricePattern = /(\d{1,4})\s*(?:块|元|块钱|元\/份|一份|人均)/g;
+  // 排队关键词
+  const queuePattern = /排队|等位|排了|等了.*分钟|拿号|叫号/;
+
+  for (const line of lines) {
+    // 检测排队
+    if (queuePattern.test(line)) result.hasQueue = true;
+
+    // 提取价格
+    const priceMatch = line.match(pricePattern);
+    if (priceMatch && !result.priceLevel) {
+      const nums = line.match(/\d{2,4}/g);
+      if (nums) {
+        const prices = nums.map(Number).filter(n => n >= 10 && n <= 2000);
+        if (prices.length > 0) {
+          result.priceLevel = Math.round(prices.reduce((a,b)=>a+b,0) / prices.length);
+        }
+      }
+    }
+
+    // 提取环境线索
+    const envKeywords = ['环境','装修','灯光','氛围','音乐','座位','包厢','安静','嘈杂','舒服','干净'];
+    for (const kw of envKeywords) {
+      if (line.includes(kw) && line.length > 8) {
+        result.envClues.push(line);
+        break;
+      }
+    }
+
+    // 提取槽点
+    const flawKeywords = ['不太','有点','偏','不够','唯一','缺点','可惜','遗憾','不过','就是','但是'];
+    if (flawKeywords.some(kw => line.includes(kw)) && line.length > 6) {
+      result.flawClues.push(line);
+    }
+
+    // 尝试提取菜品
+    const dishIndicators = ['好吃','不错','推荐','值得','惊艳','入味','嫩','香','脆','鲜','甜','辣','酸'];
+    const hasDishIndicator = dishIndicators.some(kw => line.includes(kw));
+    const hasPrice = pricePattern.test(line);
+    if ((hasDishIndicator || line.length >= 10) && line.length <= 80) {
+      // 尝试提取菜名：取逗号/句号/数字前的部分，取长度3-10个字的片段
+      let dishName = '';
+      const commaIdx = Math.min(
+        ...[',','，','。','！','！','？','?',';','；','1','2','3','4','5','6','7','8','9','0','¥','￥'].map(s => line.indexOf(s)).filter(i => i > 0)
+      );
+      if (commaIdx !== Infinity && commaIdx >= 3) {
+        dishName = line.substring(0, commaIdx);
+      } else {
+        dishName = line.length > 10 ? line.substring(0, 8) : line;
+      }
+      // 过滤太短/太像环境的菜名
+      const envOnly = ['环境','装修','灯光','氛围','排队','服务'];
+      if (dishName.length >= 3 && dishName.length <= 15 && !envOnly.some(e => dishName.includes(e))) {
+        // 提取价格
+        let dishPrice = null;
+        const nums = line.match(/\d{2,4}/g);
+        if (nums) {
+          const p = nums.map(Number).filter(n => n >= 8 && n <= 500);
+          if (p.length > 0) dishPrice = p[0];
+        }
+        // 提取感官词
+        let sensory = '';
+        const sensoryWords = ['嫩','脆','香','鲜','甜','辣','软','糯','酥','弹','滑','入口','回味'];
+        for (const sw of sensoryWords) {
+          const idx = line.indexOf(sw);
+          if (idx >= 0) {
+            const start = Math.max(0, idx - 2);
+            const end = Math.min(line.length, idx + 6);
+            sensory = line.substring(start, end);
+            break;
+          }
+        }
+        result.dishes.push({
+          name: dishName.trim(),
+          price: dishPrice,
+          sensory: sensory || line.substring(0, 20),
+          fullLine: line
+        });
+      }
+    }
   }
-  return results;
+
+  // 去重菜品
+  const seen = new Set();
+  result.dishes = result.dishes.filter(d => {
+    const key = d.name.substring(0, 4);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  return result.dishes.length > 0 || result.envClues.length > 0 ? result : null;
 }
 
-// 生成环境描述
-function generateEnv(type, vars) {
-  const cfg = ENV_TEMPLATES[type];
-  const door = fillTemplate(rng(cfg.door), vars);
-  const interior = fillTemplate(rng(cfg.interior), vars);
-  const service = fillTemplate(rng(cfg.service), vars);
-  return { door, interior, service };
-}
+// ===================== 主生成函数 =====================
 
-// 生成菜品段落
-function genDishPara(dish, dishIndex) {
-  const parts = [];
-  parts.push(dish.visual);
-  if (dish.smell) parts.push('凑近' + dish.smell);
-  parts.push(dish.taste);
-  if (dish.touch) parts.push(dish.touch);
-  const body = parts.filter(Boolean).join('。');
-  let para = `${dish.name}${body}。`;
-  if (dish.audio && Math.random() > 0.5) para += dish.audio + '。';
-  if (dish.compare && Math.random() > 0.3) para += '说实话，' + dish.compare + '。';
-  if (dish.price && Math.random() > 0.4) para += `${dish.name === dish.name ? '' : ''}${dish.price}块，${Math.random() > 0.5 ? '两个人吃刚好' : '一个人也能吃完'}` + '。';
-  return para;
-}
-
-// 生成到达+周边
-function generateArrival(vars) {
-  const templates = [
-    '地铁{line}号线{station}站{exit}出口，出来{walk}分钟看到{landmark}，{shop}就在{location}。吃完可以去{place}逛一逛，刚好消食。',
-    '坐地铁到{station}站，从{exit}口出来跟着导航走{walk}分钟。{shop}在{location}，旁边就是{place}。',
-    '{station}站{exit}出来，沿着{road}走大概{walk}分钟，看到{landmark}右转就到了。吃完顺便去{place}转一圈。'
-  ];
-  return fillTemplate(rng(templates), vars);
-}
-
-// 生成收尾
-function generateEnding(vars) {
-  const templates = [
-    '走到地铁站的路上还在咂摸那个{aftertaste}，这大概就是吃完{shop}的正常反应。你们要是去的话，记得先{tip}，别问我怎么知道的。',
-    '最后说一句实话：{honest_point}。偷偷说一句，{secret_tip}。',
-    '从{shop}出来天已经黑了，{road}上的风吹过来，嘴里还留着{dish_flavor}的余味。你们要是有空路过的话，{tip}。'
-  ];
-  return fillTemplate(rng(templates), vars);
-}
-
-// 主生成函数
 function generate() {
   const shopName = document.getElementById('shopName').value.trim();
   const shopType = document.getElementById('shopType').value;
+  const rawComments = document.getElementById('userComments').value.trim();
+
   if (!shopName) { showToast('请输入店铺名称'); return; }
   if (!shopType) { showToast('请选择店铺类型'); return; }
 
@@ -535,8 +657,11 @@ function generate() {
   progressSection.classList.add('active');
   progressSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
+  const parsedComments = parseComments(rawComments);
   const cfg = TYPE_CONFIG[shopType];
-  const steps = [
+  const hasComments = parsedComments !== null;
+
+  const baseSteps = [
     '引擎7·类型适配：' + cfg.label,
     '引擎6·标题工厂：生成3个候选标题',
     '引擎2·五感颗粒度：挖掘感官细节',
@@ -546,6 +671,16 @@ function generate() {
     '引擎1·开头钩子：选配最佳钩子',
     'SEO埋点 + 17项自检…'
   ];
+
+  let steps;
+  if (hasComments) {
+    steps = [
+      '解析评论：提取' + parsedComments.dishes.length + '道菜品线索…',
+      ...baseSteps
+    ];
+  } else {
+    steps = baseSteps;
+  }
 
   const stepsEl = document.getElementById('progressSteps');
   stepsEl.innerHTML = steps.map((s, i) =>
@@ -577,7 +712,7 @@ function generate() {
     document.getElementById('step' + (steps.length - 1)).classList.remove('current');
 
     setTimeout(() => {
-      const result = buildEssay(shopName, shopType);
+      const result = buildEssay(shopName, shopType, parsedComments);
       renderResult(result);
       progressSection.classList.remove('active');
       document.getElementById('resultSection').classList.add('active');
@@ -587,8 +722,114 @@ function generate() {
   }
 }
 
-function buildEssay(shopName, shopType) {
+function pickDishesWithComments(type, count, parsedComments) {
+  const pool = DISH_TEMPLATES[type] || DISH_TEMPLATES.street_shop;
+  if (!parsedComments || parsedComments.dishes.length === 0) {
+    return { dishes: pick(pool, count), fromComments: false };
+  }
+
+  // 混搭：评论中的菜品 + 模板补充
+  const commentDishes = parsedComments.dishes.slice(0, Math.min(count, parsedComments.dishes.length));
+  const result = [];
+
+  for (const cd of commentDishes) {
+    // 从模板池中找最匹配的模板做感官补充
+    const baseTemplate = pool[result.length % pool.length];
+    const merged = {
+      name: cd.name,
+      visual: cd.sensory.includes('端上来') || cd.sensory.includes('摆盘') ? cd.sensory : (baseTemplate ? baseTemplate.visual : cd.sensory),
+      smell: baseTemplate ? baseTemplate.smell : '',
+      taste: cd.sensory || (baseTemplate ? baseTemplate.taste : ''),
+      touch: baseTemplate ? baseTemplate.touch : '',
+      audio: baseTemplate ? baseTemplate.audio : '',
+      price: cd.price ? String(cd.price) : (baseTemplate ? baseTemplate.price : ''),
+      compare: baseTemplate ? baseTemplate.compare : '',
+      fromComment: true
+    };
+    result.push(merged);
+  }
+
+  // 如果评论菜品不够，补模板
+  if (result.length < count) {
+    const remaining = pick(pool, count - result.length);
+    result.push(...remaining);
+  }
+
+  return { dishes: result, fromComments: true };
+}
+
+function generateHook(type, vars) {
+  const hookTypes = TYPE_CONFIG[type].hookPref;
+  const hookType = rng(hookTypes);
+  const hookPool = HOOKS[hookType];
+  return fillTemplate(rng(hookPool), vars);
+}
+
+function generateTitles(type, vars) {
+  const pref = TYPE_CONFIG[type].titlePref;
+  const allTypes = [...new Set([...pref, ...Object.keys(TITLE_TEMPLATES)])].slice(0, 6);
+  const chosen = pick(allTypes, 3);
+  const starsOrder = ['⭐⭐⭐', '⭐⭐', '⭐⭐'];
+  const results = [];
+  for (let i = 0; i < 3; i++) {
+    const tType = chosen[i];
+    const tmpl = TITLE_TEMPLATES[tType];
+    let text = fillTemplate(tmpl, vars);
+    if (text.length > 28) text = text.substring(0, 25) + '…';
+    const typeNames = { value:'价值锚点型', scenario:'场景痛点型', counterintuitive:'反常识型', sensory:'感官暴击型', regional:'地域反差型', social:'社交币型' };
+    results.push({ text, stars: starsOrder[i], type: tType, typeLabel: typeNames[tType] || tType });
+  }
+  return results;
+}
+
+function generateEnv(type, vars) {
+  const cfg = ENV_TEMPLATES[type];
+  const door = fillTemplate(rng(cfg.door), vars);
+  const interior = fillTemplate(rng(cfg.interior), vars);
+  const service = fillTemplate(rng(cfg.service), vars);
+  return { door, interior, service };
+}
+
+function genDishPara(dish, dishIndex) {
+  const parts = [];
+  if (dish.fromComment && dish.visual) {
+    parts.push(dish.visual);
+  } else if (dish.visual) {
+    parts.push(dish.visual);
+  }
+  if (dish.smell) parts.push('凑近' + dish.smell);
+  parts.push(dish.taste);
+  if (dish.touch) parts.push(dish.touch);
+  const body = parts.filter(Boolean).join('。');
+  let para = `${dish.name}${body}。`;
+  if (dish.audio && Math.random() > 0.5) para += dish.audio + '。';
+  if (dish.compare && Math.random() > 0.3) para += '说实话，' + dish.compare + '。';
+  if (dish.price && Math.random() > 0.4) para += `${dish.price}块，${Math.random() > 0.5 ? '两个人吃刚好' : '一个人也能吃完'}。`;
+  return para;
+}
+
+function generateArrival(vars) {
+  const templates = [
+    '地铁{line}号线{station}站{exit}出口，出来{walk}分钟看到{landmark}，{shop}就在{location}。吃完可以去{place}逛一逛，刚好消食。',
+    '坐地铁到{station}站，从{exit}口出来跟着导航走{walk}分钟。{shop}在{location}，旁边就是{place}。',
+    '{station}站{exit}出来，沿着{road}走大概{walk}分钟，看到{landmark}右转就到了。吃完顺便去{place}转一圈。'
+  ];
+  return fillTemplate(rng(templates), vars);
+}
+
+function generateEnding(vars) {
+  const templates = [
+    '走到地铁站的路上还在咂摸那个{aftertaste}，这大概就是吃完{shop}的正常反应。你们要是去的话，记得先{tip}，别问我怎么知道的。',
+    '最后说一句实话：{honest_point}。偷偷说一句，{secret_tip}。',
+    '从{shop}出来天已经黑了，{road}上的风吹过来，嘴里还留着{dish_flavor}的余味。你们要是有空路过的话，{tip}。'
+  ];
+  return fillTemplate(rng(templates), vars);
+}
+
+function buildEssay(shopName, shopType, parsedComments) {
   const cfg = TYPE_CONFIG[shopType];
+  const hasComments = parsedComments !== null;
+
   const area = rng(AREAS.districts);
   const road = rng(AREAS.roads);
   const station = rng(AREAS.stations);
@@ -597,18 +838,26 @@ function buildEssay(shopName, shopType) {
   const exit = rng(['1','2','3']);
   const walk = randInt(3, 8);
   const place = rng(AREAS.landmarks.filter(l => l !== landmark));
-  const price = shopType === 'cafe' ? randInt(25, 55) : shopType === 'street_shop' ? randInt(15, 40) : randInt(60, 150);
+  const price = hasComments && parsedComments.priceLevel
+    ? parsedComments.priceLevel
+    : (shopType === 'cafe' ? randInt(25, 55) : shopType === 'street_shop' ? randInt(15, 40) : randInt(60, 150));
   const location = shopType === 'cafe' ? road + '路口往里走一点' : landmark + (Math.random() > 0.5 ? '一楼' : 'B1层');
 
-  const dishes = pickDishes(shopType, cfg.dishCount[1]);
+  const { dishes, fromComments } = pickDishesWithComments(shopType, cfg.dishCount[1], parsedComments);
   const actualCount = Math.min(dishes.length, randInt(cfg.dishCount[0], cfg.dishCount[1]));
+
+  // 环境变量：优先使用评论中的环境线索
+  let envClue = null;
+  if (hasComments && parsedComments.envClues.length > 0) {
+    envClue = rng(parsedComments.envClues);
+  }
 
   const vars = {
     shop: shopName,
     area, road, station, landmark, cuisine, price, location, exit, walk, place,
     smell: rng(['红烧肉混着豆香','蒜泥混着辣椒油','糖炒栗子的焦甜','卤味的香料','烤肉的炭火','黄油和面粉的烘焙']),
     env_detail: rng(['墙上的字画','灯光的色调','老式吊扇','手写菜单','整面墙的唱片']),
-    env_feel: rng(['安静得像另一个时空','热闹但不吵','温暖得像朋友家的客厅','慵懒得想瘫一下午']),
+    env_feel: envClue || rng(['安静得像另一个时空','热闹但不吵','温暖得像朋友家的客厅','慵懒得想瘫一下午']),
     object: rng(['热毛巾','热茶','菜单','冰水']),
     staff_gesture: rng(['服务员递过来热毛巾','老板倒了杯热水','阿姨把碗筷摆好','咖啡师推过来一杯温水']),
     signature_dish: dishes[0] ? dishes[0].name : '招牌菜',
@@ -617,7 +866,7 @@ function buildEssay(shopName, shopType) {
     honest_point: rng(['这家店如果你刚好在附近，值得拐进去试试','这个价位能吃到这个水平，已经超出预期了','不是那种非去不可的神店，但路过不会让你失望']),
     secret_tip: rng(['炒饭比招牌菜好吃多了','甜品的水平不输正餐','工作日的午市套餐性价比更高','他们家的免费小菜其实比花钱的还好吃']),
     dish_flavor: dishes[0] ? dishes[0].name.replace(/招牌/g,'') : '',
-    queue_time: rng(['40分钟','半小时','快1小时','二十几号']),
+    queue_time: hasComments && parsedComments.hasQueue ? rng(['四十分钟','半小时','快一小时']) : rng(['40分钟','半小时','快1小时','二十几号']),
     emotion: rng(['多喝了两碗','加了两碗饭','改了主意','又多坐了一个小时']),
     surprise: rng(['请客','米其林','私房','定制']),
     action: rng(['请客','专门跑一趟','带爸妈去','约会']),
@@ -639,12 +888,21 @@ function buildEssay(shopName, shopType) {
     flaw: rng(cfg.flawPool)
   };
 
+  // 如果有评论中的槽点，优先使用
+  if (hasComments && parsedComments.flawClues.length > 0) {
+    vars.flaw = rng(parsedComments.flawClues);
+  }
+
   // 钩子
   const hook = generateHook(shopType, vars);
 
   // 环境
   const env = generateEnv(shopType, vars);
-  const envText = env.door + ' ' + env.interior + ' ' + env.service;
+  let envText = env.door + ' ' + env.interior + ' ' + env.service;
+  // 如果有评论的环境线索，追加到环境描述中
+  if (envClue && fromComments) {
+    envText += ' 「从评论里看到有人说：' + envClue.substring(0, 40) + '」';
+  }
 
   // 菜品段落
   const dishParas = [];
@@ -659,7 +917,12 @@ function buildEssay(shopName, shopType) {
   const ending = generateEnding(vars);
 
   // 槽点
-  const flawText = shopType === 'cafe' ? '' : '说个小槽点：' + vars.flaw + '。';
+  let flawText = '';
+  if (shopType !== 'cafe') {
+    flawText = '说个小槽点：' + vars.flaw + '。';
+  } else if (hasComments && parsedComments.flawClues.length > 0) {
+    flawText = '说个小槽点：' + rng(parsedComments.flawClues).substring(0, 50) + '。';
+  }
 
   // 组装
   const paragraphs = [hook, envText, ...dishParas];
@@ -694,10 +957,15 @@ function buildEssay(shopName, shopType) {
     { label: '槽点匹配类型', pass: true },
   ];
 
-  return { titles, selectedTitle, paragraphs, checks, shopName, shopType, cfg };
+  return { titles, selectedTitle, paragraphs, checks, shopName, shopType, cfg, hasComments };
 }
 
+// ===================== 渲染与付费截断 =====================
+
 function renderResult(result) {
+  // 重置解锁状态
+  window._essayUnlocked = false;
+
   // 标题列表
   const titlesEl = document.getElementById('titlesList');
   titlesEl.innerHTML = result.titles.map((t, i) =>
@@ -708,10 +976,101 @@ function renderResult(result) {
     </div>`
   ).join('');
 
-  // 正文
+  // 构建完整文本计算截断点
+  const fullText = result.paragraphs.join('');
+  const PREVIEW_CHARS = 300;
+
+  // 正文渲染
   const contentEl = document.getElementById('essayContent');
-  contentEl.innerHTML = `<div class="essay-title">${escHtml(result.selectedTitle.text)}</div>
-    <div class="essay-body">${result.paragraphs.map(p => `<p>${escHtml(p)}</p>`).join('')}</div>`;
+  let bodyHtml = `<div class="essay-title">${escHtml(result.selectedTitle.text)}</div>`;
+
+  if (result.hasComments) {
+    bodyHtml += `<div class="comment-source-badge">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h12v10H4l-2 2V2z"/></svg>
+      基于真实评论生成
+    </div>`;
+  }
+
+  // 计算每个段落的累计字符数，找到300字的截断点
+  let charCount = 0;
+  let cutParagraphIdx = -1;
+  let cutOffset = 0;
+
+  for (let i = 0; i < result.paragraphs.length; i++) {
+    const pLen = result.paragraphs[i].length;
+    if (charCount + pLen > PREVIEW_CHARS && cutParagraphIdx < 0) {
+      cutParagraphIdx = i;
+      cutOffset = PREVIEW_CHARS - charCount;
+      break;
+    }
+    charCount += pLen;
+  }
+
+  const needsPaywall = cutParagraphIdx >= 0 && cutParagraphIdx < result.paragraphs.length;
+
+  if (!needsPaywall) {
+    // 全文不足300字，直接展示
+    bodyHtml += `<div class="essay-body">${result.paragraphs.map(p => `<p>${escHtml(p)}</p>`).join('')}</div>`;
+  } else {
+    // 预览段落（完整段落到截断段落的截断部分）
+    const previewParas = result.paragraphs.slice(0, cutParagraphIdx);
+    const cutPara = result.paragraphs[cutParagraphIdx];
+    const previewText = cutPara.substring(0, cutOffset);
+
+    // 截断后的剩余部分
+    const remainingCut = cutPara.substring(cutOffset);
+    const remainingParas = result.paragraphs.slice(cutParagraphIdx + 1);
+
+    bodyHtml += `<div class="essay-body">
+      <div class="preview-count">
+        <span>预览 ${PREVIEW_CHARS} 字</span>
+        <div class="count-bar"><div class="count-bar-fill" style="width:${Math.round(PREVIEW_CHARS / fullText.length * 100)}%"></div></div>
+        <span>全文约 ${fullText.length} 字</span>
+      </div>`;
+
+    // 预览区
+    previewParas.forEach(p => { bodyHtml += `<p>${escHtml(p)}</p>`; });
+    bodyHtml += `<p>${escHtml(previewText)}<span class="cut-indicator" style="color:var(--accent);">…</span></p>`;
+
+    // 付费截断区域
+    bodyHtml += `<div class="paywall-wrapper" id="paywallWrapper">
+      <div class="paywall-blur" id="paywallBlur">`;
+
+    // 模糊区内容
+    if (remainingCut) bodyHtml += `<p>${escHtml(remainingCut)}</p>`;
+    remainingParas.forEach(p => { bodyHtml += `<p>${escHtml(p)}</p>`; });
+
+    bodyHtml += `</div>
+      <div class="paywall-overlay" id="paywallOverlay">
+        <div class="paywall-card">
+          <div class="paywall-icon">🔒</div>
+          <h4>付费解锁完整版</h4>
+          <div class="paywall-price">¥19.9</div>
+          <div class="paywall-desc">解锁全文 · 复制/下载 · 永久查看</div>
+          <div class="qr-placeholder">
+            <div class="qr-placeholder-text">扫码付费<span>微信/支付宝</span></div>
+          </div>
+          <button class="btn-unlock" onclick="unlockEssay()">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="7" width="6" height="6" rx="1"/><path d="M4 7V5a4 4 0 117.5-2"/></svg>
+            我已支付，解锁
+          </button>
+        </div>
+      </div>
+    </div>`;
+
+    bodyHtml += `</div>`; // essay-body close
+
+    // 初始状态：复制按钮禁用
+    setTimeout(() => {
+      const btnCopy = document.getElementById('btnCopy');
+      if (btnCopy) {
+        btnCopy.disabled = true;
+        btnCopy.title = '付费解锁后可复制全文';
+      }
+    }, 0);
+  }
+
+  contentEl.innerHTML = bodyHtml;
 
   // 自检
   const checkEl = document.getElementById('checkSection');
@@ -722,6 +1081,43 @@ function renderResult(result) {
 
   // 存储结果
   window._essayResult = result;
+  window._essayFullText = fullText;
+  window._essayNeedsPaywall = needsPaywall;
+
+  // 更新复制按钮状态
+  updateCopyButton();
+}
+
+function unlockEssay() {
+  const blur = document.getElementById('paywallBlur');
+  const overlay = document.getElementById('paywallOverlay');
+  if (blur) blur.classList.add('unlocked');
+  if (overlay) overlay.classList.add('hidden');
+
+  window._essayUnlocked = true;
+
+  // 移除预览条
+  const previewCount = document.querySelector('.preview-count');
+  if (previewCount) previewCount.style.display = 'none';
+
+  // 移除截断标记
+  const cutIndicator = document.querySelector('.cut-indicator');
+  if (cutIndicator) cutIndicator.style.display = 'none';
+
+  updateCopyButton();
+  showToast('已解锁完整版');
+}
+
+function updateCopyButton() {
+  const btnCopy = document.getElementById('btnCopy');
+  if (!btnCopy) return;
+  if (window._essayNeedsPaywall && !window._essayUnlocked) {
+    btnCopy.disabled = true;
+    btnCopy.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="10" height="10" rx="2"/><path d="M1 11V3a2 2 0 012-2h8"/></svg> 付费解锁后可复制`;
+  } else {
+    btnCopy.disabled = false;
+    btnCopy.innerHTML = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="10" height="10" rx="2"/><path d="M1 11V3a2 2 0 012-2h8"/></svg> 一键复制`;
+  }
 }
 
 function selectTitle(idx) {
@@ -730,7 +1126,8 @@ function selectTitle(idx) {
   result.selectedTitle = result.titles[idx];
   document.querySelectorAll('.title-candidate').forEach(el => el.classList.remove('selected'));
   document.querySelector(`.title-candidate[data-idx="${idx}"]`)?.classList.add('selected');
-  document.querySelector('.essay-title').textContent = result.selectedTitle.text;
+  const titleEl = document.querySelector('.essay-title');
+  if (titleEl) titleEl.textContent = result.selectedTitle.text;
 }
 
 function escHtml(s) {
@@ -739,6 +1136,10 @@ function escHtml(s) {
 
 function copyEssay() {
   if (!window._essayResult) return;
+  if (window._essayNeedsPaywall && !window._essayUnlocked) {
+    showToast('请先解锁完整版');
+    return;
+  }
   const r = window._essayResult;
   const text = `# ${r.selectedTitle.text}\n\n${r.paragraphs.join('\n\n')}`;
   navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板'));
@@ -746,8 +1147,12 @@ function copyEssay() {
 
 function downloadMd() {
   if (!window._essayResult) return;
+  if (window._essayNeedsPaywall && !window._essayUnlocked) {
+    showToast('请先解锁完整版');
+    return;
+  }
   const r = window._essayResult;
-  const text = `# ${r.selectedTitle.text}\n\n${r.paragraphs.join('\n\n')}\n\n---\n*由 dianping-shiji v3.0 生成 · ${r.cfg.label}模式*`;
+  const text = `# ${r.selectedTitle.text}\n\n${r.paragraphs.join('\n\n')}\n\n---\n*由 dianping-shiji v3.1 生成 · ${r.cfg.label}模式${r.hasComments ? ' · 评论驱动' : ''}*`;
   const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
