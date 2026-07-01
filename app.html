@@ -1085,7 +1085,7 @@ function renderResult(shopName, typeLabel, fullEssay, titles, rating, ratingStar
     '<h3 style="color:var(--accent);font-size:1.05rem;margin-bottom:12px;">📝 标题候选（3选1）</h3>' +
     '<div style="display:flex;flex-direction:column;gap:8px;">';
   for (var i = 0; i < titles.length; i++) {
-    html += '<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:0.9rem;cursor:pointer;" onclick="copyText('' + titles[i].replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n') + '')">#' + (i+1) + ' ' + titles[i] + '</div>';
+    html += '<div style="background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:0.9rem;cursor:pointer;" onclick="copyText(\'' + titles[i].replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n') + '\')">#' + (i+1) + ' ' + titles[i] + '</div>';
   }
   html += '</div></div>';
 
