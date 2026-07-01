@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大众点评食记·AI写作助手 — dianping-shiji</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f12;
+    --bg-card: #16191d;
+    --bg-card-hover: #1c1f24;
+    --border: #252830;
+    --text: #e4e6ea;
+    --text-secondary: #9ca0a8;
+    --text-muted: #636770;
+    --accent: #f5a623;
+    --accent-dim: rgba(245,166,35,0.12);
+    --green: #4ade80;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --pink: #f472b6;
+    --teal: #2dd4bf;
+    --red: #f87171;
+    --orange: #fb923c;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(13,15,18,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .container { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 14px; }
+  .nav-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .nav-logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 28px; }
+  .nav-links a { color: var(--text-secondary); font-size: 14px; font-weight: 500; transition: color .2s; }
+  .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+  /* HERO */
+  .hero { padding: 96px 0 72px; text-align: center; }
+  .hero-badge { display: inline-block; background: var(--accent-dim); color: var(--accent); padding: 5px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; margin-bottom: 24px; letter-spacing: 0.4px; }
+  .hero h1 { font-size: clamp(32px, 5.5vw, 56px); font-weight: 800; letter-spacing: -1.5px; line-height: 1.15; margin-bottom: 20px; }
+  .hero h1 span { background: linear-gradient(135deg, var(--accent) 0%, var(--orange) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero p { color: var(--text-secondary); font-size: 17px; max-width: 600px; margin: 0 auto 36px; line-height: 1.75; }
+  .hero-cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 12px 28px; border-radius: 100px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: all .25s; border: none; text-decoration: none;
+  }
+  .btn-primary { background: var(--accent); color: #0d0f12; }
+  .btn-primary:hover { background: #f59e0b; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,166,35,0.3); text-decoration: none; }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { border-color: var(--text-muted); background: var(--bg-card); text-decoration: none; }
+
+  /* STATS BAR */
+  .stats { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 40px 0; }
+  .stats-grid { display: flex; justify-content: center; gap: 64px; flex-wrap: wrap; }
+  .stat { text-align: center; }
+  .stat-num { font-size: 36px; font-weight: 800; letter-spacing: -0.5px; }
+  .stat-label { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+
+  /* SECTION */
+  .section { padding: 80px 0; }
+  .section-header { text-align: center; margin-bottom: 56px; }
+  .section-header h2 { font-size: clamp(24px, 4vw, 36px); font-weight: 700; letter-spacing: -0.5px; margin-bottom: 10px; }
+  .section-header p { color: var(--text-secondary); font-size: 15px; max-width: 500px; margin: 0 auto; }
+
+  /* ENGINE CARDS */
+  .engines-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 18px; }
+  .engine-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 28px 26px;
+    transition: all .3s; position: relative; overflow: hidden;
+  }
+  .engine-card:hover { background: var(--bg-card-hover); border-color: #333840; transform: translateY(-2px); }
+  .engine-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+    background: linear-gradient(90deg, var(--accent-color, var(--accent)), transparent);
+    opacity: 0; transition: opacity .3s;
+  }
+  .engine-card:hover::before { opacity: 1; }
+  .engine-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 16px; }
+  .engine-num { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .engine-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .engine-card p { color: var(--text-secondary); font-size: 14px; line-height: 1.65; }
+  .engine-tag { display: inline-block; background: var(--accent-dim); color: var(--accent); padding: 2px 10px; border-radius: 100px; font-size: 11px; font-weight: 600; margin-top: 12px; }
+
+  /* EXAMPLE SECTION */
+  .example-section { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  .example-section .container { padding: 0; }
+  .example-header { padding: 32px; border-bottom: 1px solid var(--border); }
+  .example-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .example-meta { color: var(--text-muted); font-size: 13px; }
+  .example-titles { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; }
+  .title-candidate { padding: 12px 16px; background: rgba(245,166,35,0.06); border-radius: 8px; font-size: 14px; }
+  .title-candidate .stars { color: var(--accent); margin-right: 6px; }
+  .example-content { padding: 32px; }
+  .example-content p { margin-bottom: 16px; color: var(--text-secondary); font-size: 15px; line-height: 1.9; }
+  .example-content p:last-child { margin-bottom: 0; }
+
+  /* PRICING */
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 380px)); gap: 22px; justify-content: center; }
+  .pricing-card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-lg); padding: 36px 30px;
+    transition: all .3s; position: relative;
+  }
+  .pricing-card:hover { border-color: #333840; transform: translateY(-2px); }
+  .pricing-card.featured { border-color: var(--accent); }
+  .pricing-card.featured::after {
+    content: '推荐'; position: absolute; top: -12px; right: 24px;
+    background: var(--accent); color: #0d0f12; font-size: 11px; font-weight: 700;
+    padding: 3px 12px; border-radius: 100px;
+  }
+  .pricing-tier { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .pricing-price { font-size: 40px; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px; }
+  .pricing-price .unit { font-size: 16px; font-weight: 600; color: var(--text-muted); }
+  .pricing-desc { color: var(--text-secondary); font-size: 13px; margin-bottom: 24px; }
+  .pricing-features { list-style: none; margin-bottom: 28px; }
+  .pricing-features li { font-size: 14px; color: var(--text-secondary); padding: 8px 0; display: flex; align-items: center; gap: 8px; }
+  .pricing-features li::before { content: '✓'; color: var(--green); font-weight: 700; }
+  .pricing-btn {
+    display: block; width: 100%; text-align: center; padding: 12px;
+    border-radius: 100px; font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: all .25s;
+  }
+  .pricing-btn-free { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .pricing-btn-free:hover { border-color: var(--text-muted); background: var(--bg-card-hover); }
+  .pricing-btn-paid { background: var(--accent); color: #0d0f12; border: none; }
+  .pricing-btn-paid:hover { background: #f59e0b; }
+  .pricing-note { text-align: center; color: var(--text-muted); font-size: 12px; margin-top: 32px; }
+
+  /* FOOTER */
+  footer { border-top: 1px solid var(--border); padding: 48px 0 32px; }
+  .footer-grid { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 32px; margin-bottom: 36px; }
+  .footer-brand h3 { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .footer-brand p { color: var(--text-muted); font-size: 13px; }
+  .footer-links { display: flex; gap: 32px; }
+  .footer-links a { color: var(--text-secondary); font-size: 14px; }
+  .footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--text-muted); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .hero { padding: 64px 0 48px; }
+    .hero h1 { font-size: 30px; }
+    .section { padding: 56px 0; }
+    .stats-grid { gap: 32px; }
+    .engines-grid { grid-template-columns: 1fr; }
+    .example-titles, .example-content, .example-header { padding: 20px; }
+    .pricing-grid { grid-template-columns: 1fr; }
+    .footer-grid { flex-direction: column; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="#" class="nav-logo" style="text-decoration:none;">dianping<span>-shiji</span></a>
+    <div class="nav-links">
+      <a href="#engines">引擎</a>
+      <a href="#example">案例</a>
+      <a href="#pricing">定价</a>
+      <a href="https://github.com/yourusername/dianping-shiji" target="_blank">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">v3.0 · 已开源</div>
+    <h1>大众点评食记<br><span>AI写作助手</span></h1>
+    <p>输入一个店名，七大引擎自动生成真实不AI的大众点评食记。去模板化、去AI腔、像饭搭子酒后聊天一样自然。</p>
+    <div class="hero-cta">
+      <a href="#pricing" class="btn btn-primary">免费试用</a>
+      <a href="https://github.com/yourusername/dianping-shiji" target="_blank" class="btn btn-outline">GitHub 开源 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="container stats-grid">
+    <div class="stat"><div class="stat-num" style="color:var(--accent);">7</div><div class="stat-label">写作引擎</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--green);">17</div><div class="stat-label">输出自检项</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--blue);">5</div><div class="stat-label">店铺类型适配</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--purple);">3.0</div><div class="stat-label">产品化版本</div></div>
+  </div>
+</div>
+
+<!-- ENGINES -->
+<section class="section" id="engines">
+  <div class="container">
+    <div class="section-header">
+      <h2>七大写作引擎</h2>
+      <p>从「能写」到「写得好 + 标题好 + 适配各类店铺」，让食记读起来像真人饭后随手写的。</p>
+    </div>
+    <div class="engines-grid">
+
+      <div class="engine-card" style="--accent-color:var(--accent);">
+        <div class="engine-icon" style="background:rgba(245,166,35,0.12);color:var(--accent);">&#9889;</div>
+        <div class="engine-num">引擎 01</div>
+        <h3>开头钩子</h3>
+        <p>三种钩子模式：场景痛点 / 反常识 / 感官暴击。开篇 3 秒抓住读者，拒绝「今天来打卡了 XX 店」。</p>
+        <span class="engine-tag">3 种钩子</span>
+      </div>
+
+      <div class="engine-card" style="--accent-color:var(--green);">
+        <div class="engine-icon" style="background:rgba(74,222,128,0.12);color:var(--green);">&#128065;</div>
+        <div class="engine-num">引擎 02</div>
+        <h3>五感颗粒度</h3>
+        <p>每道菜必须覆盖至少 3 个感官维度（视觉/嗅觉/触感/味觉层次/听觉）。禁用「好吃」「嫩」「鲜」等空洞词。</p>
+        <span class="engine-tag">5 个感官维度</span>
+      </div>
+
+      <div class="engine-card" style="--accent-color:var(--blue);">
+        <div class="engine-icon" style="background:rgba(96,165,250,0.12);color:var(--blue);">&#128172;</div>
+        <div class="engine-num">引擎 03</div>
+        <h3>饭搭子人设</h3>
+        <p>聊天体写作 + 小槽点 +「偷偷告诉你」互动钩子。读起来不是说明书，而是饭搭子酒后跟你分享真实感受。</p>
+        <span class="engine-tag">去 AI 味</span>
+      </div>
+
+      <div class="engine-card" style="--accent-color:var(--purple);">
+        <div class="engine-icon" style="background:rgba(167,139,250,0.12);color:var(--purple);">&#127968;</div>
+        <div class="engine-num">引擎 04</div>
+        <h3>环境空间叙事</h3>
+        <p>门面第一眼 → 内部抓人细节 → 服务瞬间，三层动线把读者带进店里。必须具体到某一件东西，不是「装修不错」。</p>
+        <span class="engine-tag">3 层叙事</span>
+      </div>
+
+      <div class="engine-card" style="--accent-color:var(--pink);">
+        <div class="engine-icon" style="background:rgba(244,114,182,0.12);color:var(--pink);">&#9888;</div>
+        <div class="engine-num">引擎 05</div>
+        <h3>反差记忆点</h3>
+        <p>挖掘环境 vs 价格、预期 vs 实际等反差。人脑记反差比记优点厉害十倍——比如「冲着招牌菜来，结果被凉菜圈粉」。</p>
+        <span class="engine-tag">5 种反差类型</span>
+      </div>
+
+      <div class="engine-card" style="--accent-color:var(--orange);">
+        <div class="engine-icon" style="background:rgba(251,146,60,0.12);color:var(--orange);">&#127991;</div>
+        <div class="engine-num">引擎 06 · v3.0 新增</div>
+        <h3>标题工厂</h3>
+        <p>价值锚点 / 场景痛点 / 反常识 / 感官暴击 / 地域反差 / 社交币，六种模板 + 推荐指数，标题决定打开率。</p>
+        <span class="engine-tag">6 种模板</span>
+      </div>
+
+      <div class="engine-card" style="--accent-color:var(--teal);">
+        <div class="engine-icon" style="background:rgba(45,212,191,0.12);color:var(--teal);">&#128295;</div>
+        <div class="engine-num">引擎 07 · v3.0 新增</div>
+        <h3>类型适配</h3>
+        <p>高端餐厅 / 街边小店 / 网红打卡 / 老字号 / 甜品咖啡馆，不同店铺自动切换环境篇幅、菜品数量、写作基调。</p>
+        <span class="engine-tag">5 类店铺</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLE -->
+<section class="section" id="example">
+  <div class="container">
+    <div class="section-header">
+      <h2>完整案例</h2>
+      <p>v3.0 为「斗叁千·臻选土菜研究院」（苏州）生成的食记</p>
+    </div>
+    <div class="example-section">
+      <div class="example-header">
+        <h2>斗叁千·臻选土菜研究院</h2>
+        <div class="example-meta">苏州虎丘区塔园路201号 · 人均约120元 · 类型：高端餐厅/商务宴请</div>
+      </div>
+      <div class="example-titles">
+        <div class="title-candidate"><span class="stars">⭐⭐⭐</span> 塔园路这家土菜馆，人均120吃出了请客的排面 <span style="color:var(--text-muted);font-size:12px;">— 价值锚点型</span></div>
+        <div class="title-candidate"><span class="stars">⭐⭐</span> 斗叁千的红烧牛肋骨，筷子刚碰到肉就散了 <span style="color:var(--text-muted);font-size:12px;">— 感官暴击型</span></div>
+        <div class="title-candidate"><span class="stars">⭐⭐</span> 开在商场一楼的土菜馆排队1小时，但吃完我理解了 <span style="color:var(--text-muted);font-size:12px;">— 反常识型</span></div>
+      </div>
+      <div class="example-content">
+        <p>加班到九点从塔园路地铁站出来，肚子叫得整栋写字楼都听见了。抬头看见易生活广场还亮着灯，斗叁千门口的大台阶像在跟我招手。</p>
+        <p>门口的大台阶先给你一个下马威，走上去才看到斗叁千的招牌。推门进去，最先注意到的是墙上叶圣陶的字画，原木框裱的，不是那种打印店做的廉价货。大厅的灯光偏暖黄，桌子之间距离够宽，不会听见隔壁聊什么。包厢更安静些，每个包间门上都挂了木牌，一股旧时私塾的味道。服务员领位的时候顺手就把椅子拉开了，没等你动手。</p>
+        <p>鱼头豆腐汤端上来的时候汤还在冒泡，乳白色的，看着就踏实。第一口是鱼鲜，嚼到第三下豆腐的豆香才出来，紧接着是泡椒的微辣回口。说实话，比我在杭州吃的鱼头汤多了层泡椒的筋骨，没那么寡淡。一大盆128，两个人喝完刚刚好。</p>
+        <p>梅干菜牛肉炒饭端上来的时候卖相一般，黑乎乎的，差点没拍照。结果一勺子下去，锅气重到爆，牛肉粒有嚼劲不柴，梅干菜吸饱了油带一点甜。偷偷说一句，这个38块的炒饭比牛肋骨好吃多了。</p>
+        <p>地铁1号线塔园路站2出口，走5分钟进易生活广场一楼。逛完去隔壁绿宝广场溜一圈，或者开车10分钟到寒山寺，刚好消食。</p>
+        <p>走到地铁站的路上还在咂摸那个鱼汤的鲜，这大概就是吃完斗叁千的正常反应。你们要是去的话，记得先点炒饭垫垫肚子，别问我怎么知道的。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-header">
+      <h2>简单定价</h2>
+      <p>免费版永久开源，标准版解锁批量生成</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-tier">免费版</div>
+        <div class="pricing-price">免费</div>
+        <div class="pricing-desc">个人使用，永久开源</div>
+        <ul class="pricing-features">
+          <li>七大引擎基础写作</li>
+          <li>单个店铺生成</li>
+          <li>500-700 字食记</li>
+          <li>17 项自检清单</li>
+          <li>标题工厂 + 类型适配</li>
+        </ul>
+        <a href="https://github.com/yourusername/dianping-shiji" target="_blank" class="pricing-btn pricing-btn-free" style="text-decoration:none;">GitHub 获取</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-tier">标准版</div>
+        <div class="pricing-price">¥19.9<span class="unit">/月</span></div>
+        <div class="pricing-desc">适合探店博主和本地生活运营</div>
+        <ul class="pricing-features">
+          <li>免费版全部功能</li>
+          <li>优先处理队列</li>
+          <li>批量生成（月 50 篇）</li>
+          <li>数据导出（CSV/JSON）</li>
+          <li>邮件支持</li>
+        </ul>
+        <a href="#" class="pricing-btn pricing-btn-paid" style="text-decoration:none;">立即订阅</a>
+      </div>
+    </div>
+    <p class="pricing-note">商业代写服务需单独授权，见 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 协议</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h3>dianping-shiji</h3>
+        <p>大众点评食记 AI 写作 Skill · v3.0</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/yourusername/dianping-shiji" target="_blank">GitHub</a>
+        <a href="https://skillscope.cn" target="_blank">SkillScope</a>
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">许可证</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 Marvis. 基于 CC BY-NC-SA 4.0 开源协议</span>
+      <span style="color:var(--text-muted);">内容由AI生成，仅供参考</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

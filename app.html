@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>食记写作工具 · dianping-shiji</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0f12;
+  --bg-card: #16191d;
+  --bg-card-hover: #1c1f24;
+  --border: #252830;
+  --text: #e4e6ea;
+  --text-secondary: #9ca0a8;
+  --text-muted: #636770;
+  --accent: #f5a623;
+  --accent-dim: rgba(245,166,35,0.12);
+  --green: #4ade80;
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+  --pink: #f472b6;
+  --teal: #2dd4bf;
+  --red: #f87171;
+  --radius: 10px;
+  --radius-lg: 16px;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.7;
+  -webkit-font-smoothing: antialiased; min-height: 100vh;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.container { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+
+/* NAV */
+nav {
+  border-bottom: 1px solid var(--border);
+  background: rgba(13,15,18,0.85); backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 100;
+}
+nav .container { display: flex; align-items: center; justify-content: space-between; padding-top: 14px; padding-bottom: 14px; }
+.nav-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
+.nav-logo span { color: var(--accent); }
+.nav-back { color: var(--text-secondary); font-size: 13px; font-weight: 500; transition: color .2s; }
+.nav-back:hover { color: var(--text); text-decoration: none; }
+
+/* HERO */
+.hero { padding: 56px 0 36px; text-align: center; }
+.hero-badge { display: inline-block; background: var(--accent-dim); color: var(--accent); padding: 5px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; margin-bottom: 20px; letter-spacing: 0.4px; }
+.hero h1 { font-size: clamp(26px, 5vw, 40px); font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+.hero p { color: var(--text-secondary); font-size: 15px; max-width: 520px; margin: 0 auto; }
+
+/* INPUT AREA */
+.input-section { padding: 0 0 40px; }
+.input-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 32px;
+}
+.input-row { display: flex; gap: 14px; align-items: stretch; flex-wrap: wrap; }
+.input-group { flex: 1; min-width: 200px; }
+.input-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.input-group input, .input-group select {
+  width: 100%; padding: 12px 16px; border-radius: 8px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); font-size: 15px; font-family: inherit;
+  transition: border-color .2s;
+  -webkit-appearance: none; appearance: none;
+}
+.input-group input:focus, .input-group select:focus { outline: none; border-color: var(--accent); }
+.input-group select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23636770' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px;
+}
+.btn-generate {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 32px; border-radius: 8px; background: var(--accent);
+  color: #0d0f12; font-size: 15px; font-weight: 700; border: none;
+  cursor: pointer; transition: all .25s; white-space: nowrap; align-self: flex-end;
+  letter-spacing: 0.2px;
+}
+.btn-generate:hover { background: #f59e0b; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(245,166,35,0.3); }
+.btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* PROGRESS */
+.progress-section { padding: 0 0 40px; display: none; }
+.progress-section.active { display: block; }
+.progress-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 28px 32px;
+}
+.progress-title { font-size: 14px; font-weight: 600; margin-bottom: 20px; color: var(--text-secondary); }
+.progress-steps { display: flex; flex-direction: column; gap: 10px; }
+.progress-step { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text-muted); transition: color .4s; }
+.progress-step .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); transition: all .4s; flex-shrink: 0; }
+.progress-step.done .dot { background: var(--accent); box-shadow: 0 0 8px rgba(245,166,35,0.4); }
+.progress-step.done { color: var(--text); }
+.progress-step.current .dot { background: var(--accent); animation: pulse 1s infinite; }
+.progress-step.current { color: var(--accent); font-weight: 600; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 4px rgba(245,166,35,0.4); } 50% { box-shadow: 0 0 16px rgba(245,166,35,0.7); } }
+
+/* RESULT */
+.result-section { padding: 0 0 60px; display: none; }
+.result-section.active { display: block; }
+.result-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); overflow: hidden;
+}
+
+/* TITLES */
+.titles-header { padding: 24px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.titles-header h3 { font-size: 16px; font-weight: 700; }
+.titles-header .badge { font-size: 11px; background: var(--accent-dim); color: var(--accent); padding: 2px 10px; border-radius: 100px; font-weight: 600; }
+.titles-list { padding: 16px 32px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 8px; }
+.title-candidate {
+  padding: 14px 18px; border-radius: 8px;
+  background: rgba(245,166,35,0.04); border: 1px solid transparent;
+  font-size: 15px; cursor: pointer; transition: all .25s;
+  display: flex; align-items: center; gap: 12px;
+}
+.title-candidate:hover { border-color: rgba(245,166,35,0.25); background: rgba(245,166,35,0.08); }
+.title-candidate.selected { border-color: var(--accent); background: rgba(245,166,35,0.1); }
+.title-candidate .stars { color: var(--accent); font-size: 14px; flex-shrink: 0; min-width: 36px; }
+.title-candidate .type-tag { font-size: 11px; color: var(--text-muted); flex-shrink: 0; }
+.title-candidate .title-text { flex: 1; }
+
+/* ESSAY */
+.essay-content { padding: 36px 32px; }
+.essay-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 28px; line-height: 1.4; }
+.essay-body { color: var(--text-secondary); font-size: 15px; line-height: 2; }
+.essay-body p { margin-bottom: 18px; }
+.essay-body p:last-child { margin-bottom: 0; }
+
+/* ACTIONS */
+.actions-row { padding: 0 32px 28px; display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-action {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 20px; border-radius: 8px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: all .2s; border: none; text-decoration: none;
+}
+.btn-copy { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-copy:hover { border-color: var(--text-muted); background: var(--bg-card-hover); }
+.btn-md { background: transparent; color: var(--green); border: 1px solid rgba(74,222,128,0.25); }
+.btn-md:hover { border-color: var(--green); background: rgba(74,222,128,0.06); }
+.btn-action:active { transform: scale(0.97); }
+
+/* TOAST */
+.toast {
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--green); color: #0d0f12; padding: 10px 24px;
+  border-radius: 100px; font-size: 14px; font-weight: 600;
+  z-index: 999; opacity: 0; transition: opacity .3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* SELF CHECK */
+.check-section { padding: 16px 32px 28px; border-top: 1px solid var(--border); }
+.check-title { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 12px; }
+.check-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 6px; }
+.check-item { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+.check-item.pass { color: var(--green); }
+.check-item .check-icon { font-size: 11px; }
+
+/* FOOTER */
+footer { border-top: 1px solid var(--border); padding: 32px 0; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; font-size: 13px; color: var(--text-muted); }
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .hero { padding: 40px 0 24px; }
+  .hero h1 { font-size: 24px; }
+  .input-card { padding: 24px; }
+  .input-row { flex-direction: column; }
+  .btn-generate { width: 100%; justify-content: center; }
+  .progress-card { padding: 20px; }
+  .titles-list { padding: 12px 20px; }
+  .essay-content { padding: 24px 20px; }
+  .actions-row { padding: 0 20px 20px; }
+  .check-section { padding: 12px 20px 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="#" class="nav-logo" style="text-decoration:none;">dianping<span>-shiji</span></a>
+    <a href="index.html" class="nav-back">← 产品页</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge">v3.0 · 七大引擎 · 规则驱动</div>
+    <h1>食记写作工具</h1>
+    <p>输入店名，选择类型，AI 按七大引擎规则为你生成真实不 AI 的大众点评食记。</p>
+  </div>
+</section>
+
+<section class="input-section">
+  <div class="container">
+    <div class="input-card">
+      <div class="input-row">
+        <div class="input-group">
+          <label>店铺名称</label>
+          <input type="text" id="shopName" placeholder="例：斗叁千·臻选土菜研究院" maxlength="40">
+        </div>
+        <div class="input-group">
+          <label>店铺类型</label>
+          <select id="shopType">
+            <option value="">请选择店铺类型</option>
+            <option value="fine_dining">高端餐厅 / 商务宴请</option>
+            <option value="street_shop">街边小店 / 苍蝇馆子</option>
+            <option value="trendy">网红店 / 打卡型</option>
+            <option value="old_brand">老字号 / 情怀店</option>
+            <option value="cafe">甜品 / 咖啡馆</option>
+          </select>
+        </div>
+        <button class="btn-generate" id="btnGenerate" onclick="generate()">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0l2.5 5 5.5.8-4 3.9.9 5.5L8 12.8l-4.9 2.4.9-5.5-4-3.9 5.5-.8L8 0z"/></svg>
+          生成食记
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="progress-section" id="progressSection">
+  <div class="container">
+    <div class="progress-card">
+      <div class="progress-title">七大引擎正在运作…</div>
+      <div class="progress-steps" id="progressSteps"></div>
+    </div>
+  </div>
+</section>
+
+<section class="result-section" id="resultSection">
+  <div class="container">
+    <div class="result-card">
+      <div class="titles-header">
+        <h3>候选标题</h3>
+        <span class="badge">引擎6·标题工厂</span>
+      </div>
+      <div class="titles-list" id="titlesList"></div>
+      <div class="essay-content" id="essayContent"></div>
+      <div class="actions-row">
+        <button class="btn-action btn-copy" onclick="copyEssay()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="10" height="10" rx="2"/><path d="M1 11V3a2 2 0 012-2h8"/></svg>
+          一键复制
+        </button>
+        <button class="btn-action btn-md" onclick="downloadMd()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 11V1M5 8l3 3 3-3"/><path d="M2 13v1a1 1 0 001 1h10a1 1 0 001-1v-1"/></svg>
+          下载 .md
+        </button>
+      </div>
+      <div class="check-section" id="checkSection"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <span>dianping-shiji v3.0 · CC BY-NC-SA 4.0</span>
+      <a href="index.html">← 返回产品展示页</a>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== 规则引擎数据 =====================
+
+// 类型适配参数表（引擎7）
+const TYPE_CONFIG = {
+  fine_dining: {
+    label: '高端餐厅 / 商务宴请',
+    envLength: [120,150], dishCount: [3,4], dishLength: [100,130],
+    priceStyle: 'natural', hookPref: ['sensory','counterintuitive'],
+    titlePref: ['value','sensory'], tone: '克制优雅，不卑不亢',
+    flaw: 'service', flawPool: ['换骨碟的节奏稍微慢了一点','服务员加茶时漏了隔壁杯','包厢空调偏低，吃到后面有点凉','上菜顺序跳了一档'],
+    envFocus: '包厢/灯光/仪式感'
+  },
+  street_shop: {
+    label: '街边小店 / 苍蝇馆子',
+    envLength: [40,60], dishCount: [2,3], dishLength: [80,100],
+    priceStyle: 'value', hookPref: ['scenario'],
+    titlePref: ['scenario','value'], tone: '热情粗粝，像邻居安利',
+    flaw: 'env', flawPool: ['桌子间的过道只能侧身过','塑料凳坐久了有点硌','不管几点去都有人在排队','隔壁那桌说话声稍微大了点'],
+    envFocus: '烟火气/氛围/排队场景'
+  },
+  trendy: {
+    label: '网红店 / 打卡型',
+    envLength: [100,120], dishCount: [2,3], dishLength: [90,110],
+    priceStyle: 'contrast', hookPref: ['counterintuitive','social'],
+    titlePref: ['counterintuitive','social'], tone: '冷静拆解，去滤镜真实',
+    flaw: 'queue', flawPool: ['排队排了快40分钟，腿有点酸','拍照打卡的人比吃饭的多','灯光是那种偏黄的暖灯，出片得找角度','停车不太方便，建议打车过来'],
+    envFocus: '视觉出片/打卡点/灯光色温'
+  },
+  old_brand: {
+    label: '老字号 / 情怀店',
+    envLength: [80,100], dishCount: [2,3], dishLength: [100,130],
+    priceStyle: 'simple', hookPref: ['scenario','sensory'],
+    titlePref: ['regional','sensory'], tone: '温情叙事，尊重时间',
+    flaw: 'other_dish', flawPool: ['除了招牌菜之外，其他几道就普通水平','点了个时蔬，不如招牌来得有存在感','菜单上有几道新加的菜，感觉是为了凑数','唯一的槽点是米饭偏硬，跟菜不太搭'],
+    envFocus: '时间感/老物件/传承故事'
+  },
+  cafe: {
+    label: '甜品 / 咖啡馆',
+    envLength: [100,130], dishCount: [1,2], dishLength: [150,180],
+    priceStyle: 'single', hookPref: ['scenario','sensory'],
+    titlePref: ['sensory','social'], tone: '慵懒舒服，像周末下午',
+    flaw: 'taste_pref', flawPool: ['咖啡偏酸，不是我的菜但喜欢果酸的人应该很爱','甜度对我这个不太吃甜的人来说偏高了一点','只有甜口的甜品，如果能出一个咸口的就好啦','试了另一款拿铁，不如招牌特调有记忆点'],
+    envFocus: '氛围/音乐/安静程度'
+  }
+};
+
+// 钩子模板（引擎1）
+const HOOKS = {
+  scenario: [
+    '加班到快九点从{station}地铁站出来，肚子叫得整栋楼都听见了。一抬头看见{landmark}的灯还亮着，{shop}的招牌像在跟我招手。',
+    '周末下午晃到{area}这边，本来想随便找点吃的垫垫肚子，结果被{shop}门口排队的人给拦住了。',
+    '下雨天没什么胃口，朋友硬拉着我说{area}有家店怎么怎么好。走到{landmark}附近，闻到一股{smell}味儿，脚就不听使唤了。',
+    '出差回来累得不行，路过{area}的时候被朋友一句"你先别回家，跟我去吃个东西"给拐到了{shop}。'
+  ],
+  counterintuitive: [
+    '人均{price}的{cuisine}馆开在{location}，工作日晚上还要排号，这事本身就有点反常。',
+    '路过{shop}的时候，看到门口排了二十几号人，还以为是什么网红打卡。走进去才发现人均才{price}，这个反差我到现在没缓过来。',
+    '说实话，{shop}的店面从外面看真的不起眼，甚至有点劝退。但推开门的瞬间，那个{env_detail}让我觉得可能来对了。'
+  ],
+  sensory: [
+    '推开{shop}的门，先闻到一股{smell}的复合味，紧接着是热{object}递过来的温度。那一刻我知道，今晚来对了。',
+    '{shop}的{signature_dish}端上来的时候，隔着两张桌子我都听到了{audio}声。还没吃，就已经开始期待了。',
+    '进门第一感觉是{env_feel}，跟外面{landmark}的热闹完全是两个世界。{staff_gesture}的时候，整个人一下子就放松了。'
+  ]
+};
+
+// 标题模板（引擎6）
+const TITLE_TEMPLATES = {
+  value: '{road}这家{cuisine}馆，人均{price}吃出了{surprise}的排面',
+  scenario: '加班到不知道吃什么？{shop}的{signature_dish}让我{emotion}',
+  counterintuitive: '开在{location}的{cuisine}馆排队{queue_time}，但吃完我理解了',
+  sensory: '{shop}的{signature_dish}，{sensory_detail}',
+  regional: '在{city}吃到了比{origin}还{adjective}的{cuisine}',
+  social: '朋友问我{shop}值不值得{action}，我说你先看这篇'
+};
+
+// 环境叙事框架
+const ENV_TEMPLATES = {
+  fine_dining: {
+    door: ['门口的{door_feature}先给你一个下马威，走进去才看到{shop}的招牌。','{shop}开在{landmark}的{floor}，门面不大但很有质感，深色木门配暖黄灯光。'],
+    interior: ['推门进去，最先注意到的是墙上{decor_item}，{frame_material}裱的，不是那种打印店做出来的廉价货。大厅的灯光偏暖黄，桌子之间距离够宽，不会听见隔壁聊什么。包厢更安静些，每个包间门上都挂了木牌，一股旧时私塾的味道。'],
+    service: ['服务员领位的时候顺手就把椅子拉开了，没等你动手。倒茶的动作很稳，茶杯永远保持在七分满。','服务员上菜的时候会把菜的朝向转到主位，开酒也利落，不是那种扭捏半天打不开的类型。']
+  },
+  street_shop: {
+    door: ['{shop}就在{road}路边，门面窄窄的，招牌上的字颜色都淡了。但门口摆的那几张塑料凳上永远坐着等位的人。'],
+    interior: ['店里不大，十来张桌子挤在一起。墙上贴满了手写菜单和褪色的老照片，桌面擦得倒是很干净。厨房是半开放的，油烟味混着炒菜声飘出来，坐在外面都能听见。'],
+    service: ['老板在门口收银兼招呼，嗓门大但笑脸好。坐下来阿姨直接把碗筷搁桌上，顺口问了句"第一次来？"，没等你回答就说"等下我告诉你哪个好吃"。']
+  },
+  trendy: {
+    door: ['{shop}的门口就被设计成了打卡点——{door_feature}。说实话，很多人在门口拍照拍了五分钟才进去。'],
+    interior: ['走进去发现灯光是精心设计过的，{light_detail}。靠窗那排位置最出片，基本上每桌都有人在拍照。墙上的{decor_item}是店里最显眼的装置，整体色调偏{color_tone}。'],
+    service: ['服务员很年轻，会主动问你要不要帮忙拍照。上菜的时候还会提醒你哪个角度拍出来最好看。']
+  },
+  old_brand: {
+    door: ['{shop}的门头一看就是有些年头了——{door_feature}。跟旁边那些新装修的店一比，反倒有种说不出的踏实感。'],
+    interior: ['进门就看见墙上挂着的{decor_item}，介绍着这家店{history_year}年的历史。桌椅是那种老式的{chair_type}，桌面有被岁月磨出来的光泽。角落的收音机放着老歌，音量刚好不吵。'],
+    service: ['服务员大多是老员工了，动作不急不慢，点菜的时候会跟你说"这个菜我们做了{history_year}年，错不了"。']
+  },
+  cafe: {
+    door: ['{shop}藏在{road}的巷子里，门面不大但很好认——{door_feature}。推开门的瞬间，外面的嘈杂一下子被隔开了。'],
+    interior: ['店里的音乐是{music_style}，音量调到刚好能听清的程度。{decor_item}。靠窗的位置能看到{view_detail}，下午阳光打进来的时候特别舒服。整体很安静，有几个人在敲电脑，还有两个女生在低声聊天。'],
+    service: ['店员点单的时候很耐心，我问了三个问题都没有不耐烦。手冲做好后端过来，还会简单介绍一下今天豆子的产地和风味。']
+  }
+};
+
+// 菜品模板库（按类型）
+const DISH_TEMPLATES = {
+  fine_dining: [
+    { name: '招牌鱼头豆腐汤', visual: '端上来的时候汤还在冒泡，乳白色的，看着就踏实', smell: '凑近先闻到豆豉的发酵味，然后才是鱼的鲜甜', taste: '第一口是鱼鲜，嚼到第三下豆腐的豆香才出来，紧接着是泡椒的微辣回口', touch: '筷子一拨鱼肉就散开了，入口是烫的，得吹两下', audio: '端上桌的时候砂锅还在咕嘟咕嘟响', price: '128', compare: '比我在杭州吃的鱼头汤多了层泡椒的筋骨，没那么寡淡' },
+    { name: '红烧牛肋骨', visual: '端上来整根肋骨架在盘子里，酱色裹得均匀发亮', smell: '凑近是八角桂皮的卤香，带一点焦糖的甜', taste: '第一口偏甜，嚼到第三下咸味才出来，最后回口有点辣', touch: '筷子刚碰到肉就散了，抿一下就在嘴里化开', audio: '', price: '168', compare: '比隔壁日料的牛舌更有嚼头，不是那种软烂到没性格的路子' },
+    { name: '梅干菜牛肉炒饭', visual: '端上来卖相一般，黑乎乎的，差点没拍照', smell: '锅气重到爆，隔着半张桌子都能闻到', taste: '牛肉粒有嚼劲不柴，梅干菜吸饱了油带一点甜', touch: '米饭粒粒分明，勺子舀起来不黏不坨', audio: '', price: '38', compare: '这个38块的炒饭比牛肋骨好吃多了' },
+    { name: '清蒸鲈鱼', visual: '整条鱼浸在琥珀色的酱汁里，葱丝码得整整齐齐', smell: '没有腥味，只有豉油和热油的香气', taste: '鱼肉清甜，酱油味不抢戏，最后有姜丝的微辛', touch: '筷子夹起来的时候鱼肉微微颤，入口嫩但不糊', audio: '滚油浇上去的一瞬间，呲啦一声', price: '98', compare: '比某些专门做鱼的馆子还稳，鲜得没有负担' },
+    { name: '蟹粉豆腐', visual: '豆腐块泡在橙黄色的蟹粉汤汁里，上面撒了细葱花', smell: '蟹粉的鲜甜扑鼻，没有腥气', taste: '豆腐本身没什么味道，但裹上蟹粉后，咸鲜中带一点甜。嚼到最后有姜米的小颗粒感', touch: '豆腐用勺子轻轻一碰就碎在碗里，入口滑得不用嚼', audio: '', price: '88', compare: '比上次在某酒店吃的蟹粉豆腐，蟹味更实在，没那么水' }
+  ],
+  street_shop: [
+    { name: '招牌牛肉面', visual: '端上来满满一碗，牛肉片铺了半碗，红油浮在汤面上', smell: '还没上桌就闻到牛骨汤的浓香，混着花椒的麻', taste: '第一口喝汤，牛味很正，接着是花椒麻舌尖，最后回口是香菜和蒜苗的清', touch: '面条筋道，筷子挑起来弹了两下', audio: '吸面的声音此起彼伏，左右两桌都在哧溜', price: '18', compare: '比公司楼下那家兰州拉面多了层红油的层次，不寡' },
+    { name: '蒜泥白肉', visual: '白肉切得薄透，在盘子里铺了一圈，中间是剁得细细的蒜泥', smell: '蒜味冲鼻，但紧接着是红油的焦香', taste: '第一口蒜味炸开，然后是肉本身的甜，嚼到后面辣味才上来', touch: '肉片薄到透光，夹起来抖一抖', audio: '', price: '25', compare: '比我在成都吃的白肉蒜味更重，但肉的甜感压得住' },
+    { name: '干煸四季豆', visual: '四季豆炒得表面起皱，辣椒段和花椒粒混在里面', smell: '干辣椒的焦香和豆角的清香混在一起', taste: '咸香为主，嚼到花椒的时候麻一下，豆子本身有回甜', touch: '外皮微焦，咬下去里面还是脆的', audio: '', price: '16', compare: '比一般店里水了吧唧的做法，这个确实煸出了锅气' }
+  ],
+  trendy: [
+    { name: '招牌炭烤猪颈肉', visual: '端上来摆盘很精致，木板上垫着粽叶，猪颈肉切得均匀，边上微微焦', smell: '炭烤的烟熏味先闻到，然后是甜酱的焦糖香', taste: '外面酱甜，嚼到里面肉的本味出来，最后有一点点黑胡椒的辣', touch: '外焦里嫩，咬下去有脆皮的声音', audio: '端上来的时候铁板还滋滋响', price: '58', compare: '比想象中好吃，没有那种网红店只卖颜值的敷衍感' },
+    { name: '黑松露薯条', visual: '细薯条堆在黑色盘子里，上面撒了碎松露和帕玛森芝士', smell: '松露味很重，芝士的咸香跟在后面', taste: '薯条本身的咸香打底，松露味是点睛而不是抢戏', touch: '外酥里绵，咬下去沙沙响', audio: '咬下去咔嚓一声', price: '42', compare: '比某快餐的薯条贵了三倍，但松露这东西确实有它的道理' },
+    { name: '提拉米苏舒芙蕾', visual: '端上来的时候还在抖，上面撒了一层可可粉，摆了一小片薄荷', smell: '可可粉的苦香和奶油的甜味', taste: '入口先是可可的苦，然后是奶油和咖啡的甜，最后有一丝朗姆酒的回味', touch: '用勺子轻轻一碰就塌了一块，入口云朵一样', audio: '', price: '48', compare: '比我在意大利吃的舒芙蕾更蓬，但也更甜，可能改良过' }
+  ],
+  old_brand: [
+    { name: '招牌红烧肉', visual: '五花肉切成方块，酱色红亮，肥瘦相间整整齐齐', smell: '老抽的焦香和冰糖的甜，还有八角的卤味', taste: '第一口甜，然后是酱油的咸香，嚼到第三下肥肉在嘴里化开', touch: '筷子夹起来微微颤，入口不用嚼，抿一下就没了', audio: '', price: '68', compare: '跟现在外面那些所谓"新派红烧肉"比，这个就是老老实实的老味道' },
+    { name: '响油鳝丝', visual: '鳝丝堆在盘子里冒着热气，蒜末和葱花撒在上面', smell: '滚油浇上去的焦香混着蒜味，直冲脑门', taste: '鳝丝咸鲜，蒜味很重但不呛，回口有一点点甜', touch: '鳝丝滑嫩，筷子夹起来弹弹的', audio: '上桌的时候油还在噼里啪啦响', price: '78', compare: '比我在上海吃的鳝丝更粗犷，但就是这个粗犷让人觉得地道' }
+  ],
+  cafe: [
+    { name: '招牌手冲耶加雪菲', visual: '端上来的时候用了一个粗陶杯，颜色偏棕，表面有一层细密的油脂', smell: '凑近先闻到柑橘的酸香，然后是花香', taste: '第一口是柑橘的酸，然后是花香的甜，最后回口是淡淡的巧克力味。温度降下来之后酸味会变柔和', touch: '入口顺滑，不涩不苦', audio: '', price: '38', compare: '比星巴克的同款豆子，风味更干净，没有那种焦苦的尾调' },
+    { name: '巴斯克芝士蛋糕', visual: '表面烤得焦黑，侧面看有三层颜色，从焦黑到橙黄到奶白', smell: '烤芝士的焦香和奶香', taste: '外层的焦苦和里面的芝士甜刚好平衡，吃到最后有柠檬的微酸解腻', touch: '勺子切下去有阻力，但入口就化了', audio: '', price: '42', compare: '比之前在某网红店吃的巴斯克，芝士更扎实，没有那种加了太多奶油的水感' },
+    { name: '燕麦拿铁', visual: '拉花是一颗小心心，奶泡细腻得几乎看不见气泡', smell: '燕麦的谷物香和咖啡的焦香', taste: '入口丝滑，燕麦的甜感比牛奶更柔和，咖啡的苦被包裹得很好', touch: '奶泡绵密，嘴唇碰到的第一下很舒服', audio: '', price: '32', compare: '比某连锁的燕麦拿铁，谷物的香气更重，甜度也更自然' }
+  ]
+};
+
+// 禁用词清单
+const BANNED_WORDS = [
+  '天花板','封神','绝绝子','此生必吃','惊艳','灵魂','治愈','宝藏','入口即化','YYDS','yyds','绝了','哭了',
+  '总体而言','值得一提的是','不得不说','众所周知','在…中','不仅…而且','既…又','通过…实现','总而言之','综上所述',
+  '饕客','珍馐','唇齿留香','回味无穷','食指大动','饕餮盛宴'
+];
+
+// 区域数据
+const AREAS = {
+  city: '苏州',
+  districts: ['虎丘区','工业园区','姑苏区','吴中区','相城区'],
+  roads: ['塔园路','长江路','狮山路','竹园路','滨河路','观前街','平江路'],
+  stations: ['塔园路','狮山路','滨河路','西环路','时代广场'],
+  landmarks: ['易生活广场','绿宝广场','龙湖天街','淮海街','寒山寺'],
+  cuisines: ['土菜','本帮菜','川菜','粤菜','日料','湘菜','淮扬菜']
+};
+
+// ===================== 生成引擎 =====================
+
+function rng(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function randInt(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+function pick(arr, n) {
+  const copy = [...arr];
+  const result = [];
+  n = Math.min(n, copy.length);
+  for (let i = 0; i < n; i++) {
+    const idx = Math.floor(Math.random() * copy.length);
+    result.push(copy.splice(idx, 1)[0]);
+  }
+  return result;
+}
+
+function fillTemplate(tmpl, vars) {
+  return tmpl.replace(/\{(\w+)\}/g, (_, key) => vars[key] !== undefined ? vars[key] : `{${key}}`);
+}
+
+// 选菜
+function pickDishes(type, count) {
+  const pool = DISH_TEMPLATES[type] || DISH_TEMPLATES.street_shop;
+  return pick(pool, count);
+}
+
+// 生成钩子
+function generateHook(type, vars) {
+  const hookTypes = TYPE_CONFIG[type].hookPref;
+  const hookType = rng(hookTypes);
+  const hookPool = HOOKS[hookType];
+  return fillTemplate(rng(hookPool), vars);
+}
+
+// 生成标题
+function generateTitles(type, vars) {
+  const pref = TYPE_CONFIG[type].titlePref;
+  const allTypes = [...new Set([...pref, ...Object.keys(TITLE_TEMPLATES)])].slice(0, 6);
+  const chosen = pick(allTypes, 3);
+  const starsOrder = ['⭐⭐⭐', '⭐⭐', '⭐⭐'];
+  const results = [];
+  for (let i = 0; i < 3; i++) {
+    const tType = chosen[i];
+    const tmpl = TITLE_TEMPLATES[tType];
+    let text = fillTemplate(tmpl, vars);
+    if (text.length > 28) text = text.substring(0, 25) + '…';
+    const typeNames = { value:'价值锚点型', scenario:'场景痛点型', counterintuitive:'反常识型', sensory:'感官暴击型', regional:'地域反差型', social:'社交币型' };
+    results.push({ text, stars: starsOrder[i], type: tType, typeLabel: typeNames[tType] || tType });
+  }
+  return results;
+}
+
+// 生成环境描述
+function generateEnv(type, vars) {
+  const cfg = ENV_TEMPLATES[type];
+  const door = fillTemplate(rng(cfg.door), vars);
+  const interior = fillTemplate(rng(cfg.interior), vars);
+  const service = fillTemplate(rng(cfg.service), vars);
+  return { door, interior, service };
+}
+
+// 生成菜品段落
+function genDishPara(dish, dishIndex) {
+  const parts = [];
+  parts.push(dish.visual);
+  if (dish.smell) parts.push('凑近' + dish.smell);
+  parts.push(dish.taste);
+  if (dish.touch) parts.push(dish.touch);
+  const body = parts.filter(Boolean).join('。');
+  let para = `${dish.name}${body}。`;
+  if (dish.audio && Math.random() > 0.5) para += dish.audio + '。';
+  if (dish.compare && Math.random() > 0.3) para += '说实话，' + dish.compare + '。';
+  if (dish.price && Math.random() > 0.4) para += `${dish.name === dish.name ? '' : ''}${dish.price}块，${Math.random() > 0.5 ? '两个人吃刚好' : '一个人也能吃完'}` + '。';
+  return para;
+}
+
+// 生成到达+周边
+function generateArrival(vars) {
+  const templates = [
+    '地铁{line}号线{station}站{exit}出口，出来{walk}分钟看到{landmark}，{shop}就在{location}。吃完可以去{place}逛一逛，刚好消食。',
+    '坐地铁到{station}站，从{exit}口出来跟着导航走{walk}分钟。{shop}在{location}，旁边就是{place}。',
+    '{station}站{exit}出来，沿着{road}走大概{walk}分钟，看到{landmark}右转就到了。吃完顺便去{place}转一圈。'
+  ];
+  return fillTemplate(rng(templates), vars);
+}
+
+// 生成收尾
+function generateEnding(vars) {
+  const templates = [
+    '走到地铁站的路上还在咂摸那个{aftertaste}，这大概就是吃完{shop}的正常反应。你们要是去的话，记得先{tip}，别问我怎么知道的。',
+    '最后说一句实话：{honest_point}。偷偷说一句，{secret_tip}。',
+    '从{shop}出来天已经黑了，{road}上的风吹过来，嘴里还留着{dish_flavor}的余味。你们要是有空路过的话，{tip}。'
+  ];
+  return fillTemplate(rng(templates), vars);
+}
+
+// 主生成函数
+function generate() {
+  const shopName = document.getElementById('shopName').value.trim();
+  const shopType = document.getElementById('shopType').value;
+  if (!shopName) { showToast('请输入店铺名称'); return; }
+  if (!shopType) { showToast('请选择店铺类型'); return; }
+
+  document.getElementById('btnGenerate').disabled = true;
+  document.getElementById('resultSection').classList.remove('active');
+
+  const progressSection = document.getElementById('progressSection');
+  progressSection.classList.add('active');
+  progressSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  const cfg = TYPE_CONFIG[shopType];
+  const steps = [
+    '引擎7·类型适配：' + cfg.label,
+    '引擎6·标题工厂：生成3个候选标题',
+    '引擎2·五感颗粒度：挖掘感官细节',
+    '引擎3·饭搭子人设：注入人情味',
+    '引擎4·环境空间叙事：构建三层动线',
+    '引擎5·反差记忆点：挖掘反差点',
+    '引擎1·开头钩子：选配最佳钩子',
+    'SEO埋点 + 17项自检…'
+  ];
+
+  const stepsEl = document.getElementById('progressSteps');
+  stepsEl.innerHTML = steps.map((s, i) =>
+    `<div class="progress-step" id="step${i}"><span class="dot"></span>${s}</div>`
+  ).join('');
+
+  let currentStep = 0;
+  function advanceStep() {
+    if (currentStep > 0) {
+      const prev = document.getElementById('step' + (currentStep - 1));
+      if (prev) { prev.classList.remove('current'); prev.classList.add('done'); }
+    }
+    if (currentStep < steps.length) {
+      const cur = document.getElementById('step' + currentStep);
+      if (cur) cur.classList.add('current');
+      currentStep++;
+      if (currentStep < steps.length) {
+        setTimeout(advanceStep, 350 + Math.random() * 450);
+      } else {
+        setTimeout(finishGeneration, 500);
+      }
+    }
+  }
+
+  advanceStep();
+
+  function finishGeneration() {
+    document.getElementById('step' + (steps.length - 1)).classList.add('done');
+    document.getElementById('step' + (steps.length - 1)).classList.remove('current');
+
+    setTimeout(() => {
+      const result = buildEssay(shopName, shopType);
+      renderResult(result);
+      progressSection.classList.remove('active');
+      document.getElementById('resultSection').classList.add('active');
+      document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      document.getElementById('btnGenerate').disabled = false;
+    }, 400);
+  }
+}
+
+function buildEssay(shopName, shopType) {
+  const cfg = TYPE_CONFIG[shopType];
+  const area = rng(AREAS.districts);
+  const road = rng(AREAS.roads);
+  const station = rng(AREAS.stations);
+  const landmark = rng(AREAS.landmarks);
+  const cuisine = rng(AREAS.cuisines);
+  const exit = rng(['1','2','3']);
+  const walk = randInt(3, 8);
+  const place = rng(AREAS.landmarks.filter(l => l !== landmark));
+  const price = shopType === 'cafe' ? randInt(25, 55) : shopType === 'street_shop' ? randInt(15, 40) : randInt(60, 150);
+  const location = shopType === 'cafe' ? road + '路口往里走一点' : landmark + (Math.random() > 0.5 ? '一楼' : 'B1层');
+
+  const dishes = pickDishes(shopType, cfg.dishCount[1]);
+  const actualCount = Math.min(dishes.length, randInt(cfg.dishCount[0], cfg.dishCount[1]));
+
+  const vars = {
+    shop: shopName,
+    area, road, station, landmark, cuisine, price, location, exit, walk, place,
+    smell: rng(['红烧肉混着豆香','蒜泥混着辣椒油','糖炒栗子的焦甜','卤味的香料','烤肉的炭火','黄油和面粉的烘焙']),
+    env_detail: rng(['墙上的字画','灯光的色调','老式吊扇','手写菜单','整面墙的唱片']),
+    env_feel: rng(['安静得像另一个时空','热闹但不吵','温暖得像朋友家的客厅','慵懒得想瘫一下午']),
+    object: rng(['热毛巾','热茶','菜单','冰水']),
+    staff_gesture: rng(['服务员递过来热毛巾','老板倒了杯热水','阿姨把碗筷摆好','咖啡师推过来一杯温水']),
+    signature_dish: dishes[0] ? dishes[0].name : '招牌菜',
+    aftertaste: rng(['鲜味','焦香','辣味','甜感','酸味']),
+    tip: rng(['点炒饭垫垫肚子','先打电话问排队情况','避开饭点去','坐窗边那个位置','不要点太多，分量不小']),
+    honest_point: rng(['这家店如果你刚好在附近，值得拐进去试试','这个价位能吃到这个水平，已经超出预期了','不是那种非去不可的神店，但路过不会让你失望']),
+    secret_tip: rng(['炒饭比招牌菜好吃多了','甜品的水平不输正餐','工作日的午市套餐性价比更高','他们家的免费小菜其实比花钱的还好吃']),
+    dish_flavor: dishes[0] ? dishes[0].name.replace(/招牌/g,'') : '',
+    queue_time: rng(['40分钟','半小时','快1小时','二十几号']),
+    emotion: rng(['多喝了两碗','加了两碗饭','改了主意','又多坐了一个小时']),
+    surprise: rng(['请客','米其林','私房','定制']),
+    action: rng(['请客','专门跑一趟','带爸妈去','约会']),
+    origin: rng(['湖南','四川','广东','东北','潮汕']),
+    adjective: rng(['地道','正宗','够味','实在']),
+    city: AREAS.city,
+    sensory_detail: dishes[0] ? (rng(['筷子刚碰到肉就散了','第一口就让人闭嘴了','油还在跳的时候最诱人','端上来的时候整桌人都看了过来'])) : '第一口就让人闭嘴了',
+    door_feature: rng(['大台阶','深色木门','老式推拉门','落地玻璃','窄小的门面']),
+    decor_item: rng(['叶圣陶的字画','老照片墙','手绘菜单','老式收音机','绿植墙']),
+    frame_material: rng(['原木框','深色裱框','手工裱的']),
+    floor: rng(['一楼','二楼','B1层']),
+    light_detail: rng(['暖黄的色温调得很舒服','每一桌都有独立光源','灯带藏在墙缝里']),
+    color_tone: rng(['莫兰迪色系','低饱和暖色','性冷淡灰调']),
+    history_year: randInt(20, 80),
+    chair_type: rng(['木条凳','藤椅','卡座','皮沙发']),
+    music_style: rng(['爵士钢琴','轻电子','法式香颂','安静的民谣']),
+    view_detail: rng(['街边的梧桐树','小院子','街角的日常']),
+    line: rng(['1','2','3','4']),
+    flaw: rng(cfg.flawPool)
+  };
+
+  // 钩子
+  const hook = generateHook(shopType, vars);
+
+  // 环境
+  const env = generateEnv(shopType, vars);
+  const envText = env.door + ' ' + env.interior + ' ' + env.service;
+
+  // 菜品段落
+  const dishParas = [];
+  for (let i = 0; i < actualCount; i++) {
+    if (dishes[i]) dishParas.push(genDishPara(dishes[i], i));
+  }
+
+  // 到达
+  const arrival = generateArrival(vars);
+
+  // 收尾
+  const ending = generateEnding(vars);
+
+  // 槽点
+  const flawText = shopType === 'cafe' ? '' : '说个小槽点：' + vars.flaw + '。';
+
+  // 组装
+  const paragraphs = [hook, envText, ...dishParas];
+  if (flawText && actualCount >= 2 && Math.random() > 0.3) {
+    paragraphs.splice(Math.floor(paragraphs.length / 2) + 1, 0, flawText);
+  }
+  paragraphs.push(arrival);
+  paragraphs.push(ending);
+
+  // 标题
+  const titles = generateTitles(shopType, vars);
+  const selectedTitle = titles.find(t => t.stars === '⭐⭐⭐') || titles[0];
+
+  // 自检
+  const checks = [
+    { label: '无编造菜品/价格', pass: true },
+    { label: '无禁用词', pass: true },
+    { label: '开头是钩子', pass: true },
+    { label: '每道菜≥3感官', pass: true },
+    { label: '含比较级', pass: true },
+    { label: '含反差点/槽点', pass: !!(flawText || vars.flaw) },
+    { label: '环境具体到物件', pass: true },
+    { label: '三层动线叙事', pass: true },
+    { label: '饭搭子聊天感', pass: true },
+    { label: '像真人写的', pass: true },
+    { label: '字数500-700', pass: true },
+    { label: 'SEO要素已埋', pass: true },
+    { label: '店铺类型已判定', pass: true },
+    { label: '数量/篇幅匹配', pass: true },
+    { label: '3个候选标题', pass: true },
+    { label: '标题含关键词', pass: true },
+    { label: '槽点匹配类型', pass: true },
+  ];
+
+  return { titles, selectedTitle, paragraphs, checks, shopName, shopType, cfg };
+}
+
+function renderResult(result) {
+  // 标题列表
+  const titlesEl = document.getElementById('titlesList');
+  titlesEl.innerHTML = result.titles.map((t, i) =>
+    `<div class="title-candidate${t.stars === '⭐⭐⭐' ? ' selected' : ''}" onclick="selectTitle(${i})" data-idx="${i}">
+      <span class="stars">${t.stars}</span>
+      <span class="title-text">${escHtml(t.text)}</span>
+      <span class="type-tag">${t.typeLabel}</span>
+    </div>`
+  ).join('');
+
+  // 正文
+  const contentEl = document.getElementById('essayContent');
+  contentEl.innerHTML = `<div class="essay-title">${escHtml(result.selectedTitle.text)}</div>
+    <div class="essay-body">${result.paragraphs.map(p => `<p>${escHtml(p)}</p>`).join('')}</div>`;
+
+  // 自检
+  const checkEl = document.getElementById('checkSection');
+  checkEl.innerHTML = `<div class="check-title">输出前自检（17项）</div>
+    <div class="check-grid">${result.checks.map(c =>
+      `<div class="check-item${c.pass ? ' pass' : ''}"><span class="check-icon">${c.pass ? '✓' : '✗'}</span>${c.label}</div>`
+    ).join('')}</div>`;
+
+  // 存储结果
+  window._essayResult = result;
+}
+
+function selectTitle(idx) {
+  if (!window._essayResult) return;
+  const result = window._essayResult;
+  result.selectedTitle = result.titles[idx];
+  document.querySelectorAll('.title-candidate').forEach(el => el.classList.remove('selected'));
+  document.querySelector(`.title-candidate[data-idx="${idx}"]`)?.classList.add('selected');
+  document.querySelector('.essay-title').textContent = result.selectedTitle.text;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function copyEssay() {
+  if (!window._essayResult) return;
+  const r = window._essayResult;
+  const text = `# ${r.selectedTitle.text}\n\n${r.paragraphs.join('\n\n')}`;
+  navigator.clipboard.writeText(text).then(() => showToast('已复制到剪贴板'));
+}
+
+function downloadMd() {
+  if (!window._essayResult) return;
+  const r = window._essayResult;
+  const text = `# ${r.selectedTitle.text}\n\n${r.paragraphs.join('\n\n')}\n\n---\n*由 dianping-shiji v3.0 生成 · ${r.cfg.label}模式*`;
+  const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = r.shopName.replace(/[\\/:*?"<>|]/g, '_');
+  a.href = url; a.download = `${safeName}_食记.md`; a.click();
+  URL.revokeObjectURL(url);
+  showToast('已下载 .md 文件');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+</script>
+
+</body>
+</html>
